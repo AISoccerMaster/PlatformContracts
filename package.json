@@ -1,0 +1,26 @@
+{
+  "name": "hardhat-project",
+  "version": "1.0.0",
+  "main": "hardhat.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AISoccerMaster/PlatformContracts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AISoccerMaster/PlatformContracts/issues"
+  },
+  "homepage": "https://github.com/AISoccerMaster/PlatformContracts#readme",
+  "description": "",
+  "devDependencies": {
+    "hardhat": "^2.8.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.1"
+  }
+}
