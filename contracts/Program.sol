@@ -1,20 +1,18 @@
 pragma solidity 0.8.10;
 
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-contract Program is ERC721Enumerable, Ownable {
+contract Program is ERC1155Supply, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
     using Strings for uint256;
     
     struct ProgramInfo {
         uint256 tokenId;
-        string ability;
+        string ability;  // AISoccer
         address dev;
         uint256 mainVersion;
         uint256 subVersion;
@@ -22,12 +20,14 @@ contract Program is ERC721Enumerable, Ownable {
         bytes32 hashValue;
         string desc;
         string repositUrl;
+        bool bPublic;  // if bPublic is true, this program could be sold to public
     }
 
     address public devContract;
     uint256 public tokenId;
     mapping(uint256 => ProgramInfo) public programInfoMap;
     mapping(string => bool) public supportedAbilityMap;   // 
+    mapping(string => uint256) public abilityInitNumberMap;   // 
 
     modifier onlyDev() {
         require(msg.sender == devContract, "Program: only dev contract can call this contract.");
@@ -42,9 +42,13 @@ contract Program is ERC721Enumerable, Ownable {
         supportedAbilityMap[abilityName] = _bSupported;
     }
 
-    function mint(address _dev, 
+    function setAbilityInitNumber(string memory abilityName, uint256 _initNumber) external onlyOwner {
+        abilityInitNumberMap[abilityName] = _initNumber;
+    }
+
+    function registerProgram(address _dev, 
                   string memory _ability, 
-                  uint256 _mainVersion, 
+                  uint256 _mainVersion,
                   uint256 _subVersion, 
                   bytes32 _hashValue, 
                   string memory _desc, 
@@ -52,9 +56,20 @@ contract Program is ERC721Enumerable, Ownable {
         require(supportedAbilityMap[ability], "Program: ability NOT supported");
         require(bytes(_desc).length < 50, "Program: the length of desc should be less than 50 bytes.");
         tokenId++;
-        programInfoMap[tokenId] = new ProgramInfo(tokenId, _ability, _dev, _mainVersion, _subVersion, block.timestamp, _hashValue, _desc, _repositUrl);
-        _mint(devAddr, _tokenId);
+        programInfoMap[tokenId] = new ProgramInfo(tokenId, _ability, _dev, _mainVersion, _subVersion, block.timestamp, _hashValue, _desc, _repositUrl, false);
+        _mint(devAddr, _tokenId, abilityInitNumberMap[_ability], "");
         return tokenId;
+    }
+
+    // after public, dev will cost ERC20 for every program
+    function mintProgram(uint256 _tokenId, uint256 _amount) external {
+        ProgramInfo memory programInfo = programInfoMap[tokenId];
+        require(programInfo.bPublic && msg.sender == programInfo.dev, "Program: only dev could mint public program.");
+        _mint(msg.sender, _tokenId, _amount, "");
+    }
+
+    function setPublic(uint256 _tokenId) external onlyOwner {
+        programInfoMap[tokenId].bPublic = true;
     }
 
     function tokenURI(uint256 tokenId) override public view returns (string memory) {
@@ -90,9 +105,24 @@ contract Program is ERC721Enumerable, Ownable {
         string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7]));
         output = string(abi.encodePacked(output, parts[8], parts[9], parts[10], parts[11], parts[12]));
         
-        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Bag #', toString(tokenId), '", "description": "Programs are developed by developers and can be attached to robots as one of the capabilities they can have..", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
+        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Program #', toString(tokenId), '", "description": "Programs are developed by developers and can be attached to robots as one of the capabilities they can have..", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
         output = string(abi.encodePacked('data:application/json;base64,', json));
 
         return output;
+    }
+
+    function getAbility(uint256 _programId) view external returns(string memory) {
+        return programInfoMap[_programId].ability;
+    }
+
+    function _beforeTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual override {
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 }

@@ -19,6 +19,7 @@ contract Developer is Ownable {
 
     Program public programContractAddr;
 
+    bool public bPermissionless;
     EnumerableSet.AddressSet private permittedDevs;
     EnumerableSet.AddressSet private registeredDevs;
     mapping(address => DevInfo) public addrDevInfoMap;
@@ -29,6 +30,11 @@ contract Developer is Ownable {
 
     constructor(address _programContractAddr) public {
         programContractAddr = Program(_programContractAddr);
+        bPermissionless = true;
+    }
+
+    function setPermission(bool _bPermissionless) external onlyOwner {
+        bPermissionless = _bPermissionless;
     }
 
     function setDev(address _devAddr, bool _bAdded) external onlyOwner {
@@ -40,7 +46,7 @@ contract Developer is Ownable {
     }
     // 注册开发者
     function registerDev(string memory _name, string memory _desc, string memory _headIconUrl, string memory _githubUrl) external {
-        require(permittedDevs.contains(msg.sender), "Developer: NOT allowed");
+        require(bPermissionless || permittedDevs.contains(msg.sender), "Developer: NOT allowed");
         require(!registeredDevs.contains(msg.sender), "Developer:You have registered as a developer.");
         require(bytes(_name).length > 2 && bytes(_desc).length < 200, "Developer: the length of name or desc is error.");
         
@@ -60,13 +66,13 @@ contract Developer is Ownable {
     }
 
     // 开发者添加AI程序，包括AI上传的URL以及对应的hash值，实际AI程序保存在云或IPFS上
-    function addProgram(string memory _ability, 
+    function registerProgram(string memory _ability, 
                         uint256 _mainVersion, 
                         uint256 _subVersion, 
                         bytes32 _hashValue, 
                         string memory _desc, 
                         string memory _repositUrl) external returns(uint256) {
-        require(permittedDevs.contains(msg.sender), "Developer: NOT allowed");
+        require(bPermissionless || permittedDevs.contains(msg.sender), "Developer: NOT allowed");
         uint256 programTokenId = aiProgramAddr.mint(msg.sender, _ability, _mainVersion, _subVersion, _hashValue, _desc, _repositUrl);
         addrProgramTokenIdsMap[msg.sender].push(programTokenId);
         
