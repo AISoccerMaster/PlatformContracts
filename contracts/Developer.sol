@@ -50,7 +50,7 @@ contract Developer is Ownable {
         require(!registeredDevs.contains(msg.sender), "Developer:You have registered as a developer.");
         require(bytes(_name).length > 2 && bytes(_desc).length < 200, "Developer: the length of name or desc is error.");
         
-        addrDevInfoMap[msg.sender] = new DevInfo(msg.sender, _name, _org, _desc, _headIconUrl, _githubUrl);
+        addrDevInfoMap[msg.sender] = DevInfo(msg.sender, _name, _desc, _headIconUrl, _githubUrl);
         registeredDevs.add(msg.sender);
 
         emit RegisterDev(msg.sender, _name, _githubUrl);
@@ -58,7 +58,7 @@ contract Developer is Ownable {
 
     function getAllDevInfo() external returns(DevInfo[] memory devInfos) {
         uint256 length = registeredDevs.length();
-        devInfos = new DevInfos[](length);
+        devInfos = new DevInfo[](length);
         for (uint256 i = 0; i < length; i++) {
           address devAddr = registeredDevs.at(i);
           devInfos[i] = addrDevInfoMap[devAddr];
@@ -73,7 +73,7 @@ contract Developer is Ownable {
                         string memory _desc, 
                         string memory _repositUrl) external returns(uint256) {
         require(bPermissionless || permittedDevs.contains(msg.sender), "Developer: NOT allowed");
-        uint256 programTokenId = aiProgramAddr.mint(msg.sender, _ability, _mainVersion, _subVersion, _hashValue, _desc, _repositUrl);
+        uint256 programTokenId = programContractAddr.mint(msg.sender, _ability, _mainVersion, _subVersion, _hashValue, _desc, _repositUrl);
         addrProgramTokenIdsMap[msg.sender].push(programTokenId);
         
         emit AddProgram(msg.sender, programTokenId);

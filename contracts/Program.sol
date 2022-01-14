@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "./Base64.sol";
 
 contract Program is ERC1155Supply, Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -34,7 +35,7 @@ contract Program is ERC1155Supply, Ownable {
         _;
     }
 
-    constructor(address _devContract) ERC721("Program Info", "PRG") {
+    constructor(address _devContract) ERC1155("") {
         devContract = _devContract;
     }
 
@@ -53,11 +54,11 @@ contract Program is ERC1155Supply, Ownable {
                   bytes32 _hashValue, 
                   string memory _desc, 
                   string memory _repositUrl) external onlyDev returns(uint256) {
-        require(supportedAbilityMap[ability], "Program: ability NOT supported");
+        require(supportedAbilityMap[_ability], "Program: ability NOT supported");
         require(bytes(_desc).length < 50, "Program: the length of desc should be less than 50 bytes.");
         tokenId++;
-        programInfoMap[tokenId] = new ProgramInfo(tokenId, _ability, _dev, _mainVersion, _subVersion, block.timestamp, _hashValue, _desc, _repositUrl, false);
-        _mint(devAddr, _tokenId, abilityInitNumberMap[_ability], "");
+        programInfoMap[tokenId] = ProgramInfo(tokenId, _ability, _dev, _mainVersion, _subVersion, block.timestamp, _hashValue, _desc, _repositUrl, false);
+        _mint(_dev, tokenId, abilityInitNumberMap[_ability], "");
         return tokenId;
     }
 
@@ -72,8 +73,8 @@ contract Program is ERC1155Supply, Ownable {
         programInfoMap[tokenId].bPublic = true;
     }
 
-    function tokenURI(uint256 tokenId) override public view returns (string memory) {
-        ProgramInfo memory programInfo = programInfoMap[tokenId];
+    function tokenURI(uint256 _tokenId) public view returns (string memory) {
+        ProgramInfo memory programInfo = programInfoMap[_tokenId];
 
         string[13] memory parts;
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
@@ -105,7 +106,7 @@ contract Program is ERC1155Supply, Ownable {
         string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7]));
         output = string(abi.encodePacked(output, parts[8], parts[9], parts[10], parts[11], parts[12]));
         
-        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Program #', toString(tokenId), '", "description": "Programs are developed by developers and can be attached to robots as one of the capabilities they can have..", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
+        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Program #', _tokenId.toString(), '", "description": "Programs are developed by developers and can be attached to robots as one of the capabilities they can have..", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
         output = string(abi.encodePacked('data:application/json;base64,', json));
 
         return output;

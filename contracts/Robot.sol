@@ -2,16 +2,17 @@ pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
-import "./Loot.sol"
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./Loot.sol";
 
 interface IRobocupCompetitionPlatform {
     function checkRobotContainProgram(uint256 _robotId, uint256 _programId) view external returns(bool);
     function removeExpectRobotWithProgram(uint256 _robotId, uint256 _programId) external;
 }
 
-contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, ReentrancyGuard, Ownable {
+contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
     using SafeMath for uint256;
-    using String for uint256;
+    using Strings for uint256;
     using EnumerableSet for EnumerableSet.UintSet;
 
     // this is currently 1%
@@ -47,6 +48,11 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, ReentrancyGuard, Own
 
     function setRobocup(address _robocup) public onlyOwner {
         robocup = _robocup;
+    }
+
+        
+    function getRole(uint256 tokenId) public view returns (string memory) {
+        return pluck(tokenId, "ROLE", roles);
     }
 
     function tokenURI(uint256 tokenId) override public view returns (string memory) {
@@ -99,7 +105,7 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, ReentrancyGuard, Own
         return output;
     }
 
-    function mint(uint256 _amount, uint256 _maxPriceFirstRobot) payable external nonReentrant returns (uint256[] memory _tokenIds)  {
+    function mint(uint256 _amount, uint256 _maxPriceFirstRobot) payable external returns (uint256[] memory _tokenIds)  {
         require(msg.sender == tx.origin, "Robot: only EOA");
         require(_amount > 0, "Robot: _amount must be larger than zero.");
 
