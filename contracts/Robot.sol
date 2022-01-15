@@ -55,7 +55,7 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
         return pluck(tokenId, "ROLE", roles);
     }
 
-    function tokenURI(uint256 tokenId) override public view returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
         string[19] memory parts;
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
 

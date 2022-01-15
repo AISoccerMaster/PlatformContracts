@@ -51,13 +51,13 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
     }
     uint256 public tokenId;    
     mapping(uint256 => CompetitionInfo) public tokenId2CompetitionMap;
-    mapping(uint256 => mapping(uint256 => EnumerableSet.UintSet)) public robot2Program2CompetitionIdsMap;
+    mapping(uint256 => mapping(uint256 => EnumerableSet.UintSet)) private robot2Program2CompetitionIdsMap;
     
     EnumerableSet.AddressSet private emulatePlatforms;
     mapping(address => mapping(CompetitionStatus => EnumerableSet.UintSet)) private ep2Status2CompetitionIdsMap;
     mapping(uint256 => address) public competitionId2EpMap;
 
-    constructor(address _robotContract, address _programContract) {
+    constructor(address _robotContract, address _programContract) ERC721("Robocup Competition", "RBC") Ownable() {
         robotContract = IRobot(_robotContract);
         programContract = IProgram(_programContract);
     }
@@ -70,7 +70,7 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
         require(!expectRobotProgramMap[_robotId].contains(_programId), "Robocup: robot with the program has been contained");
         require(robotContract.ownerOf(_robotId) == msg.sender, "Robocup: Not owner of robot");
         require(robotContract.checkRobotContainProgram(_robotId, _programId), "Robocup: robot does NOT contain the program");
-        require(programContract.getAbility(_programId) == AbilityName, "Robocup: program's ability is NOT AISoccer");
+        require(compareStrings(programContract.getAbility(_programId), AbilityName), "Robocup: program's ability is NOT AISoccer");
 
         expectRobotProgramMap[_robotId].add(_programId);
         if (!expectRobotIds.contains(_robotId)) expectRobotIds.add(_robotId);
@@ -79,7 +79,7 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
     function removeExpectRobotWithProgram(uint256 _robotId, uint256 _programId) external {
         require(expectRobotProgramMap[_robotId].contains(_programId), "Robocup: robot with the program has NOT been contained");
         require(robotContract.ownerOf(_robotId) == msg.sender, "Robocup: Not owner of robot");
-        EnumerableSet.UintSet memory competitionIds = robot2Program2CompetitionIdsMap[_robotId][_programId];
+        EnumerableSet.UintSet storage competitionIds = robot2Program2CompetitionIdsMap[_robotId][_programId];
         for (uint256 i = 0; i < competitionIds.length(); i++) {
             uint256 competitionId = competitionIds.at(i);
             CompetitionStatus status = getCompetitionStatus(competitionId);
@@ -94,11 +94,11 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
         require(robotContract.ownerOf(_myRobotId) == msg.sender, "Robocup: Not owner of robot");
         require(expectRobotProgramMap[_myRobotId].contains(_myProgramId), "Robocup: my robot with the program has NOT been contained");
         require(expectRobotProgramMap[_peerRobotId].contains(_peerProgramId), "Robocup: peer robot with the program has NOT been contained");
-        require(programContract.getAbility(_myProgramId) == AbilityName, "Robocup: my program's ability is NOT AISoccer");
-        require(programContract.getAbility(_peerProgramId) == AbilityName, "Robocup: peer program's ability is NOT AISoccer");
+        require(compareStrings(programContract.getAbility(_myProgramId), AbilityName), "Robocup: my program's ability is NOT AISoccer");
+        require(compareStrings(programContract.getAbility(_peerProgramId), AbilityName), "Robocup: peer program's ability is NOT AISoccer");
 
         tokenId++;
-        tokenId2CompetitionMap[tokenId] = new CompetitionInfo(tokenId, _myRobotId, _myProgramId, _peerRobotId, _peerProgramId, MAX_INT, MAX_INT, 0, 0, "");
+        tokenId2CompetitionMap[tokenId] = CompetitionInfo(tokenId, _myRobotId, _myProgramId, _peerRobotId, _peerProgramId, MAX_INT, MAX_INT, 0, 0, "", "");
 
         robot2Program2CompetitionIdsMap[_myRobotId][_myProgramId].add(tokenId);
         robot2Program2CompetitionIdsMap[_peerRobotId][_peerProgramId].add(tokenId);
@@ -156,7 +156,7 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
 
         tokenId2CompetitionMap[_competitionId].monitorUrl = _monitorUrl;
         ep2Status2CompetitionIdsMap[msg.sender][CompetitionStatus.NotStart].remove(_competitionId);
-        ep2Status2CompetitionIdsMap[msg.sender][CompetitionStatus.Runing].add(_competitionId);
+        ep2Status2CompetitionIdsMap[msg.sender][CompetitionStatus.Running].add(_competitionId);
     }   
 
     function setCompetitionResult(uint256 _competitionId, uint256 _endTime, uint256 _robotOneScore, uint256 _robotTwoScore, string memory _logHash) external {
@@ -167,23 +167,22 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
         tokenId2CompetitionMap[_competitionId].robotTwoScore = _robotTwoScore;
         tokenId2CompetitionMap[_competitionId].logHash = _logHash;
 
-        ep2Status2CompetitionIdsMap[msg.sender][CompetitionStatus.Runing].remove(_competitionId);
+        ep2Status2CompetitionIdsMap[msg.sender][CompetitionStatus.Running].remove(_competitionId);
         ep2Status2CompetitionIdsMap[msg.sender][CompetitionStatus.End].add(_competitionId);
 
-        msg.sender.transfer(FeePerCompetition);
+        payable(msg.sender).transfer(FeePerCompetition);
     }    
 
     function getCompetitionInfos(address _epAddr, CompetitionStatus status) view external returns(CompetitionInfo[] memory competitionInfos) {
-        EnumerableSet.UintSet memory competitionIds = ep2Status2CompetitionIdsMap[_epAddr][status];
-        uint256 length = competitionIds.length;
+        uint256 length = ep2Status2CompetitionIdsMap[_epAddr][status].length();
 
         competitionInfos = new CompetitionInfo[](length);
         for (uint256 i = 0; i < length; i++) {
-            competitionInfos[i] = tokenId2CompetitionMap[competitionIds.at(i)];
+            competitionInfos[i] = tokenId2CompetitionMap[ep2Status2CompetitionIdsMap[_epAddr][status].at(i)];
         }
     }
-
-    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+    
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         CompetitionInfo memory competitionInfo = tokenId2CompetitionMap[_tokenId];
         CompetitionStatus status = getCompetitionStatus(_tokenId);
         string[9] memory parts;
@@ -195,7 +194,7 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
         parts[2] = '</text><text x="10" y="40" class="base">';
         
         if (status == CompetitionStatus.End) {
-            parts[3] = string(abi.encodePacked("Score(End):", competitionInfo.teamOneScore.toString(), " : ", competitionInfo.teamTwoScore.toString()));
+            parts[3] = string(abi.encodePacked("Score(End):", competitionInfo.robotOneScore.toString(), " : ", competitionInfo.robotTwoScore.toString()));
             
             parts[4] = '</text><text x="10" y="60" class="base">';
 
@@ -226,5 +225,9 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
         output = string(abi.encodePacked('data:application/json;base64,', json));
 
         return output;
+    }
+
+    function compareStrings(string memory a, string memory b) public view returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
 }
