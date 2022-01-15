@@ -18,7 +18,7 @@ contract Developer is Ownable {
       string githubUrl;
     }
 
-    Program public programContractAddr;
+    Program public programContract;
 
     bool public bPermissionless;
     EnumerableSet.AddressSet private permittedDevs;
@@ -29,8 +29,8 @@ contract Developer is Ownable {
     event RegisterDev(address owner, string indexed name, string indexed githubUrl);
     event AddProgram(address owner, uint256 aiProgramTokenId);
 
-    constructor(address _programContractAddr) public {
-        programContractAddr = Program(_programContractAddr);
+    constructor(address _programContract) public {
+        programContract = Program(_programContract);
         bPermissionless = true;
     }
 
@@ -73,7 +73,7 @@ contract Developer is Ownable {
                         string memory _desc, 
                         string memory _repositUrl) external returns(uint256) {
         require(bPermissionless || permittedDevs.contains(msg.sender), "Developer: NOT allowed");
-        uint256 programTokenId = programContractAddr.registerProgram(msg.sender, _ability, _mainVersion, _subVersion, _hashValue, _desc, _repositUrl);
+        uint256 programTokenId = programContract.registerProgram(msg.sender, _ability, _mainVersion, _subVersion, _hashValue, _desc, _repositUrl);
         addrProgramTokenIdsMap[msg.sender].push(programTokenId);
         
         emit AddProgram(msg.sender, programTokenId);

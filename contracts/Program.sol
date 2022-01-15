@@ -36,7 +36,10 @@ contract Program is ERC1155Supply, Ownable {
         _;
     }
 
-    constructor(address _devContract) ERC1155("") {
+    constructor() ERC1155("") {
+    }
+
+    function setDevContractAddr(address _devContract) external onlyOwner {
         devContract = _devContract;
     }
 
