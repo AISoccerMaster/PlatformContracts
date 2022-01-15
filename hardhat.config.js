@@ -24,9 +24,9 @@ module.exports = {
     }
   },
   networks: {
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${INFURA_PROJECT_ID}`,
-      accounts: [`0x${ROPSTEN_PRIVATE_KEY}`]
-    }
+    // ropsten: {
+    //   url: `https://ropsten.infura.io/v3/${INFURA_PROJECT_ID}`,
+    //   accounts: [`0x${ROPSTEN_PRIVATE_KEY}`]
+    // }
   }
 };

@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./Base64.sol";
 
 contract Program is ERC1155Supply, Ownable {
-    using EnumerableSet for EnumerableSet.AddressSet;
+    using EnumerableSet for EnumerableSet.UintSet;
     using Strings for uint256;
     
     struct ProgramInfo {
@@ -30,6 +30,7 @@ contract Program is ERC1155Supply, Ownable {
     mapping(uint256 => ProgramInfo) public programInfoMap;
     mapping(string => bool) public supportedAbilityMap;   // 
     mapping(string => uint256) public abilityInitNumberMap;   // 
+    mapping(address => EnumerableSet.UintSet) private userTokenIdsMap;
 
     modifier onlyDev() {
         require(msg.sender == devContract, "Program: only dev contract can call this contract.");
@@ -63,14 +64,20 @@ contract Program is ERC1155Supply, Ownable {
         tokenId++;
         programInfoMap[tokenId] = ProgramInfo(tokenId, _ability, _dev, _mainVersion, _subVersion, block.timestamp, _hashValue, _desc, _repositUrl, false);
         _mint(_dev, tokenId, abilityInitNumberMap[_ability], "");
+        if (abilityInitNumberMap[_ability] > 0 && !userTokenIdsMap[_dev].contains(tokenId)) {
+            userTokenIdsMap[_dev].add(tokenId);
+        }
         return tokenId;
     }
 
     // after public, dev will cost ERC20 for every program
     function mintProgram(uint256 _tokenId, uint256 _amount) external {
         ProgramInfo memory programInfo = programInfoMap[tokenId];
-        require(programInfo.bPublic && msg.sender == programInfo.dev, "Program: only dev could mint public program.");
+        require(programInfo.bPublic && msg.sender == programInfo.dev && _amount > 0, "Program: only dev could mint public program with > 0 number.");
         _mint(msg.sender, _tokenId, _amount, "");
+        if (!userTokenIdsMap[msg.sender].contains(tokenId)) {
+            userTokenIdsMap[msg.sender].add(tokenId);
+        }
     }
 
     function setPublic(uint256 _tokenId) external onlyOwner {
@@ -120,6 +127,23 @@ contract Program is ERC1155Supply, Ownable {
         return programInfoMap[_programId].ability;
     }
 
+    function getUsetTokenNumber(address _userAddr) view external returns(uint256) {
+        return userTokenIdsMap[_userAddr].length();
+    }
+
+    function getUserTokenIds(address _userAddr, uint256 _fromIndex, uint256 _toIndex) view external returns(uint256[] memory tokenIds) {
+        uint256 length = userTokenIdsMap[_userAddr].length();
+        if (_toIndex > length) _toIndex = length;
+        require(_fromIndex < _toIndex, "Program: index out of range!");
+        
+        tokenIds = new uint256[](_toIndex - _fromIndex);
+        uint256 count = 0;
+        for (uint256 i = _fromIndex; i < _toIndex; i++) {
+            uint256 tokenId = userTokenIdsMap[_userAddr].at(i);
+            tokenIds[count++] = tokenId;
+        }
+    }
+
     function _beforeTokenTransfer(
         address operator,
         address from,
@@ -131,6 +155,12 @@ contract Program is ERC1155Supply, Ownable {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
         for (uint256 i = 0; i < ids.length; i++) {
             require(programInfoMap[ids[i]].bPublic, "Program: can NOT transfer NFT if NOT public");
-        }
+            if (balanceOf(from, ids[i]) == 0) {
+                userTokenIdsMap[from].remove(ids[i]);
+            }
+            if (amounts[i] > 0 && !userTokenIdsMap[to].contains(ids[i])) {
+                userTokenIdsMap[to].add(ids[i]);
+            }
+        }        
     }
 }

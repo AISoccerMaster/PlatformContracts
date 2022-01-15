@@ -40,22 +40,22 @@ describe("Token contract", function () {
     console.log("Account balance:", (await deployer.getBalance()).toString());
   
     const Program = await ethers.getContractFactory("Program");
-    const program = await Program.deploy();
+    program = await Program.deploy();
     await program.deployed();
     console.log("Program address:", program.address);
 
     const Developer = await ethers.getContractFactory("Developer");
-    const developer = await Developer.deploy(program.address);
+    developer = await Developer.deploy(program.address);
     await developer.deployed();
     console.log("Developer address:", developer.address);
 
     const Robot = await ethers.getContractFactory("Robot");
-    const robot = await Robot.deploy(program.address);
+    robot = await Robot.deploy(program.address);
     await robot.deployed();
     console.log("robot address:", robot.address);
 
     const RobocupCompetitionPlatform = await ethers.getContractFactory("RobocupCompetitionPlatform");
-    const robocup = await RobocupCompetitionPlatform.deploy(robot.address, program.address);
+    robocup = await RobocupCompetitionPlatform.deploy(robot.address, program.address);
     await robocup.deployed();
     console.log("RobocupCompetitionPlatform address:", robocup.address);
   
@@ -63,6 +63,18 @@ describe("Token contract", function () {
     await program.setDevContractAddr(developer.address);
     await program.setSupportAbility("AISoccer", true);
     await program.setAbilityInitNumber("AISoccer", 1);
+
+    await developer.registerDev("Sam", "full stack engineer on blockchain industry", "0x000000000000000000000000000000", 0, "https://pbs.twimg.com/profile_images/1454759537429266436/BX-zxPAo_400x400.jpg", "https://github.com/syslink");
+    await developer.registerProgram("AISoccer", 1, 0, "0x0123456890", "champion program", "https://github.com/AISoccerMaster");
+
+    await robot.setRobocup(robocup.address);
+    const mintPrice = await robot.getCurrentPriceToMint(1);
+    console.log("mint 1 price", mintPrice.toString(10));
+    await robot.mint(1, mintPrice * 1.05, {value: "0x" + mintPrice.toString(16)});
+    const burnPrice = await robot.getCurrentPriceToBurn(1);
+    console.log("burn 1 price", burnPrice.toString(10));
+    const tokenId = await robot.tokenOfOwnerByIndex(developer.address, 0);
+
   });
 
   // You can nest describe calls to create subsections.

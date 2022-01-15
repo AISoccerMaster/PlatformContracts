@@ -783,8 +783,8 @@
       ]
     },
     "/Users/mryu/blockchain/AISoccerMaster/PlatformContracts/contracts/Program.sol": {
-      "lastModificationDate": 1642235544199,
-      "contentHash": "94d03dde73e95f3b2cfa286125c31a5b",
+      "lastModificationDate": 1642249050924,
+      "contentHash": "a93ff8c9b3acdde0f578f8b85315cb7d",
       "sourceName": "contracts/Program.sol",
       "solcConfig": {
         "version": "0.8.10",
@@ -976,8 +976,8 @@
       ]
     },
     "/Users/mryu/blockchain/AISoccerMaster/PlatformContracts/contracts/Developer.sol": {
-      "lastModificationDate": 1642228093336,
-      "contentHash": "97d556e2c1a1023390d1b02b3c34b0b0",
+      "lastModificationDate": 1642249028299,
+      "contentHash": "87cdbf1b57acddad7106a17076a745fd",
       "sourceName": "contracts/Developer.sol",
       "solcConfig": {
         "version": "0.8.10",

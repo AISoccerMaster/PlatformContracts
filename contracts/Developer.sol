@@ -14,6 +14,8 @@ contract Developer is Ownable {
       address devAddr;
       string name;
       string desc;
+      address headIconNFT;
+      uint256 tokenId;
       string headIconUrl;
       string githubUrl;
     }
@@ -46,12 +48,12 @@ contract Developer is Ownable {
         return permittedDevs.contains(_devAddr);
     }
     
-    function registerDev(string memory _name, string memory _desc, string memory _headIconUrl, string memory _githubUrl) external {
+    function registerDev(string memory _name, string memory _desc, address _headIconNFT, uint256 _tokenId, string memory _headIconUrl, string memory _githubUrl) external {
         require(bPermissionless || permittedDevs.contains(msg.sender), "Developer: NOT allowed");
         require(!registeredDevs.contains(msg.sender), "Developer:You have registered as a developer.");
         require(bytes(_name).length > 2 && bytes(_desc).length < 200, "Developer: the length of name or desc is error.");
         
-        addrDevInfoMap[msg.sender] = DevInfo(msg.sender, _name, _desc, _headIconUrl, _githubUrl);
+        addrDevInfoMap[msg.sender] = DevInfo(msg.sender, _name, _desc, _headIconNFT, _tokenId, _headIconUrl, _githubUrl);
         registeredDevs.add(msg.sender);
 
         emit RegisterDev(msg.sender, _name, _githubUrl);
