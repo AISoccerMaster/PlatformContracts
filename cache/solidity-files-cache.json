@@ -72,8 +72,8 @@
       ]
     },
     "/Users/mryu/blockchain/AISoccerMaster/PlatformContracts/contracts/RobocupCompetitionPlatform.sol": {
-      "lastModificationDate": 1642213004246,
-      "contentHash": "99aa6825dfbb7d976c0a0b215915bd62",
+      "lastModificationDate": 1642261725509,
+      "contentHash": "d7297a4c6752fd93f3dc6f77f3e74fad",
       "sourceName": "contracts/RobocupCompetitionPlatform.sol",
       "solcConfig": {
         "version": "0.8.10",
@@ -629,8 +629,8 @@
       ]
     },
     "/Users/mryu/blockchain/AISoccerMaster/PlatformContracts/contracts/Robot.sol": {
-      "lastModificationDate": 1642213008871,
-      "contentHash": "1477d9b40b62183bdf5bf6071a6f1314",
+      "lastModificationDate": 1642260804041,
+      "contentHash": "2729d5cb426a743fc736cff591209af3",
       "sourceName": "contracts/Robot.sol",
       "solcConfig": {
         "version": "0.8.10",
@@ -783,8 +783,8 @@
       ]
     },
     "/Users/mryu/blockchain/AISoccerMaster/PlatformContracts/contracts/Program.sol": {
-      "lastModificationDate": 1642249050924,
-      "contentHash": "a93ff8c9b3acdde0f578f8b85315cb7d",
+      "lastModificationDate": 1642259202577,
+      "contentHash": "d725ea83330fb2ed7c4120f60743f655",
       "sourceName": "contracts/Program.sol",
       "solcConfig": {
         "version": "0.8.10",
@@ -976,8 +976,8 @@
       ]
     },
     "/Users/mryu/blockchain/AISoccerMaster/PlatformContracts/contracts/Developer.sol": {
-      "lastModificationDate": 1642249028299,
-      "contentHash": "87cdbf1b57acddad7106a17076a745fd",
+      "lastModificationDate": 1642254628563,
+      "contentHash": "5c04dee8714c77f13cd23f87d11b48c4",
       "sourceName": "contracts/Developer.sol",
       "solcConfig": {
         "version": "0.8.10",

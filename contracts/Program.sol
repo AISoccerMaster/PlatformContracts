@@ -19,7 +19,7 @@ contract Program is ERC1155Supply, Ownable {
         uint256 mainVersion;
         uint256 subVersion;
         uint256 uploadTime;
-        bytes32 hashValue;
+        string hashValue;
         string desc;
         string repositUrl;
         bool bPublic;  // if bPublic is true, this program could be sold to public
@@ -56,7 +56,7 @@ contract Program is ERC1155Supply, Ownable {
                   string memory _ability, 
                   uint256 _mainVersion,
                   uint256 _subVersion, 
-                  bytes32 _hashValue, 
+                  string memory _hashValue, 
                   string memory _desc, 
                   string memory _repositUrl) external onlyDev returns(uint256) {
         require(supportedAbilityMap[_ability], "Program: ability NOT supported");
@@ -127,7 +127,7 @@ contract Program is ERC1155Supply, Ownable {
         return programInfoMap[_programId].ability;
     }
 
-    function getUsetTokenNumber(address _userAddr) view external returns(uint256) {
+    function getUserTokenNumber(address _userAddr) view external returns(uint256) {
         return userTokenIdsMap[_userAddr].length();
     }
 
@@ -152,13 +152,11 @@ contract Program is ERC1155Supply, Ownable {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual override {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
         for (uint256 i = 0; i < ids.length; i++) {
-            require(programInfoMap[ids[i]].bPublic, "Program: can NOT transfer NFT if NOT public");
-            if (balanceOf(from, ids[i]) == 0) {
+            if (from != address(0) && balanceOf(from, ids[i]) == 0) {
                 userTokenIdsMap[from].remove(ids[i]);
             }
-            if (amounts[i] > 0 && !userTokenIdsMap[to].contains(ids[i])) {
+            if (to != address(0) && amounts[i] > 0 && !userTokenIdsMap[to].contains(ids[i])) {
                 userTokenIdsMap[to].add(ids[i]);
             }
         }        

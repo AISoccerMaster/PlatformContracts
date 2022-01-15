@@ -71,7 +71,7 @@ contract Developer is Ownable {
     function registerProgram(string memory _ability, 
                         uint256 _mainVersion, 
                         uint256 _subVersion, 
-                        bytes32 _hashValue, 
+                        string memory _hashValue, 
                         string memory _desc, 
                         string memory _repositUrl) external returns(uint256) {
         require(bPermissionless || permittedDevs.contains(msg.sender), "Developer: NOT allowed");

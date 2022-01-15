@@ -26,7 +26,7 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
     EnumerableSet.UintSet private expectRobotIds;
 
     uint256 public constant MAX_INT = 2**256 - 1;
-    uint256 public FeePerCompetition = .001 ether;
+    uint256 public FeePerCompetition = .01 ether;
 
     IRobot public robotContract;
     IProgram public programContract;

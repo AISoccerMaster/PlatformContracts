@@ -17,9 +17,8 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
     using EnumerableSet for EnumerableSet.UintSet;
 
     // this is currently 1%
-    uint256 public initMintPrice = 0.01 ether; // at 0
-    uint256 public stepMintPrice = 0.002 ether; // at 0
-    uint256 public initBurnPrice = 0.0018 ether; // at 1
+    uint256 public initMintPrice = 0.005 ether; // at 0
+    uint256 public initBurnPrice = 0.004 ether; // at 1
     address payable public creator;
     uint256 public totalEverMinted = 0;
     uint256 public reserve = 0;
@@ -154,14 +153,12 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
         emit Burned(_tokenIds, _tokenIds.length, burnPrice, reserve);
     }
 
-    // if supply 0, mint price = 0.001
-    // y = a + b * x = 5 + 2*x   5 7 9 11 13 15 17 19 21
     function getCurrentPriceToMint(uint256 _amount) public view returns (uint256) {
         uint256 curSupply = getCurrentSupply();
         
         uint256 totalPrice;
-        for (uint256 i = 0; i < _amount; i++) {
-            uint256 mintPrice = initMintPrice.add((curSupply + i).mul(stepMintPrice));
+        for (uint256 i = 1; i <= _amount; i++) {
+            uint256 mintPrice = (curSupply + i).mul(initMintPrice);
             totalPrice = totalPrice.add(mintPrice);
         }
         
@@ -179,7 +176,7 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
         
         uint256 totalBurnPrice;
         for (uint256 i = 0; i < _amount; i++) {
-            uint256 burnPrice = initMintPrice.add((curSupply - 1 - i).mul(initBurnPrice));
+            uint256 burnPrice = (curSupply - i).mul(initBurnPrice);
             totalBurnPrice = totalBurnPrice.add(burnPrice);
         }
         

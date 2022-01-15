@@ -32,9 +32,10 @@ describe("Token contract", function () {
   // time. It receives a callback, which can be async.
   beforeEach(async function () {
     const [deployer] = await ethers.getSigners();
+    const deployerAddr = await deployer.getAddress();
     console.log(
       "Deploying the contracts with the account:",
-      await deployer.getAddress()
+      deployerAddr
     );
   
     console.log("Account balance:", (await deployer.getBalance()).toString());
@@ -66,15 +67,39 @@ describe("Token contract", function () {
 
     await developer.registerDev("Sam", "full stack engineer on blockchain industry", "0x000000000000000000000000000000", 0, "https://pbs.twimg.com/profile_images/1454759537429266436/BX-zxPAo_400x400.jpg", "https://github.com/syslink");
     await developer.registerProgram("AISoccer", 1, 0, "0x0123456890", "champion program", "https://github.com/AISoccerMaster");
+    await developer.registerProgram("AISoccer", 1, 1, "0x1123456890", "champion program", "https://github.com/AISoccerMaster");
+    
+    const programNum = await program.getUserTokenNumber(deployerAddr);
+    expect(programNum).to.equal(2);
+    const programIds = await program.getUserTokenIds(deployerAddr, 0, 2);
+    console.log(programIds);
+    expect(programIds).to.equal([1, 2]);
 
     await robot.setRobocup(robocup.address);
-    const mintPrice = await robot.getCurrentPriceToMint(1);
+
+
+    var mintPrice = await robot.getCurrentPriceToMint(1);
     console.log("mint 1 price", mintPrice.toString(10));
     await robot.mint(1, mintPrice * 1.05, {value: "0x" + mintPrice.toString(16)});
+    
     const burnPrice = await robot.getCurrentPriceToBurn(1);
     console.log("burn 1 price", burnPrice.toString(10));
-    const tokenId = await robot.tokenOfOwnerByIndex(developer.address, 0);
 
+    mintPrice = await robot.getCurrentPriceToMint(1);
+    console.log("mint 1 price", mintPrice.toString(10));
+    await robot.mint(1, mintPrice * 1.05, {value: "0x" + mintPrice.toString(16)});
+    
+    var robotId = await robot.tokenOfOwnerByIndex(developer.address, 0);
+    await robot.bindProgram2Robot(programIds[0], robotId);
+
+    robotId = await robot.tokenOfOwnerByIndex(developer.address, 1);
+    await robot.bindProgram2Robot(programIds[1], robotId);
+
+
+    await robocup.setEmulatePlatform("0xF0d219afAfDc79b81344534c37Bc69Fc64091F85", true);
+    await robocup.addExpectRobotWithProgram(1, 1);
+    await robocup.addExpectRobotWithProgram(2, 2);
+    await robocup.launchChallenge(1, 1, 2, 2);
   });
 
   // You can nest describe calls to create subsections.
