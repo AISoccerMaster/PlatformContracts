@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
@@ -83,15 +84,15 @@ contract Program is ERC1155Supply, Ownable {
 
         parts[2] = '</text><text x="10" y="40" class="base">';
 
-        parts[3] = string(abi.encodePacked("DevAddr:", uint256(programInfo.dev).toHexString()));
+        parts[3] = string(abi.encodePacked("DevAddr:", uint256(uint160(programInfo.dev)).toHexString()));
 
         parts[4] = '</text><text x="10" y="60" class="base">';
 
-        parts[5] = string(abi.encodePacked("Timestamp:", uint256(programInfo.uploadTime).toString()));
+        parts[5] = string(abi.encodePacked("Timestamp:", programInfo.uploadTime.toString()));
 
         parts[6] = '</text><text x="10" y="80" class="base">';
 
-        parts[7] = string(abi.encodePacked("Version:", uint256(programInfo.mainVersion).toString(), ":", uint256(programInfo.subVersion).toString()));
+        parts[7] = string(abi.encodePacked("Version:", programInfo.mainVersion.toString(), ":", programInfo.subVersion.toString()));
 
         parts[8] = '</text><text x="10" y="100" class="base">';
 

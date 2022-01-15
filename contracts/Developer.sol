@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -44,7 +45,7 @@ contract Developer is Ownable {
     function isDevPermitted(address _devAddr) external returns(bool) {
         return permittedDevs.contains(_devAddr);
     }
-    // 注册开发者
+    
     function registerDev(string memory _name, string memory _desc, string memory _headIconUrl, string memory _githubUrl) external {
         require(bPermissionless || permittedDevs.contains(msg.sender), "Developer: NOT allowed");
         require(!registeredDevs.contains(msg.sender), "Developer:You have registered as a developer.");
@@ -65,7 +66,6 @@ contract Developer is Ownable {
         }
     }
 
-    // 开发者添加AI程序，包括AI上传的URL以及对应的hash值，实际AI程序保存在云或IPFS上
     function registerProgram(string memory _ability, 
                         uint256 _mainVersion, 
                         uint256 _subVersion, 
@@ -73,7 +73,7 @@ contract Developer is Ownable {
                         string memory _desc, 
                         string memory _repositUrl) external returns(uint256) {
         require(bPermissionless || permittedDevs.contains(msg.sender), "Developer: NOT allowed");
-        uint256 programTokenId = programContractAddr.mint(msg.sender, _ability, _mainVersion, _subVersion, _hashValue, _desc, _repositUrl);
+        uint256 programTokenId = programContractAddr.registerProgram(msg.sender, _ability, _mainVersion, _subVersion, _hashValue, _desc, _repositUrl);
         addrProgramTokenIdsMap[msg.sender].push(programTokenId);
         
         emit AddProgram(msg.sender, programTokenId);

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
@@ -47,7 +48,7 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
     }
 
     function setRobocup(address _robocup) public onlyOwner {
-        robocup = _robocup;
+        robocup = IRobocupCompetitionPlatform(_robocup);
     }
 
         
@@ -222,7 +223,18 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
         uint256 id,
         uint256 value,
         bytes calldata data
-    ) external returns (bytes4) {
+    ) pure external returns (bytes4) {
         return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
     }
+
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
+    ) pure external returns (bytes4) {
+        return bytes4(keccak256(""));
+    }
+
 }
