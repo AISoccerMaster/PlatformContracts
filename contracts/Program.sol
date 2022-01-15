@@ -129,5 +129,8 @@ contract Program is ERC1155Supply, Ownable {
         bytes memory data
     ) internal virtual override {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+        for (uint256 i = 0; i < ids.length; i++) {
+            require(programInfoMap[ids[i]].bPublic, "Program: can NOT transfer NFT if NOT public");
+        }
     }
 }

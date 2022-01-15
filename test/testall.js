@@ -23,27 +23,46 @@ describe("Token contract", function () {
   // A common pattern is to declare some variables, and assign them in the
   // `before` and `beforeEach` callbacks.
 
-  let Token;
-  let hardhatToken;
-  let owner;
-  let addr1;
-  let addr2;
-  let addrs;
+  let program;
+  let developer;
+  let robot;
+  let robocup;
 
   // `beforeEach` will run before each test, re-deploying the contract every
   // time. It receives a callback, which can be async.
   beforeEach(async function () {
-    // Get the ContractFactory and Signers here.
-    Token = await ethers.getContractFactory("Token");
-    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+    const [deployer] = await ethers.getSigners();
+    console.log(
+      "Deploying the contracts with the account:",
+      await deployer.getAddress()
+    );
+  
+    console.log("Account balance:", (await deployer.getBalance()).toString());
+  
+    const Program = await ethers.getContractFactory("Program");
+    const program = await Program.deploy();
+    await program.deployed();
+    console.log("Program address:", program.address);
 
-    // To deploy our contract, we just have to call Token.deploy() and await
-    // for it to be deployed(), which happens onces its transaction has been
-    // mined.
-    hardhatToken = await Token.deploy();
+    const Developer = await ethers.getContractFactory("Developer");
+    const developer = await Developer.deploy(program.address);
+    await developer.deployed();
+    console.log("Developer address:", developer.address);
 
-    // We can interact with the contract by calling `hardhatToken.method()`
-    await hardhatToken.deployed();
+    const Robot = await ethers.getContractFactory("Robot");
+    const robot = await Robot.deploy(program.address);
+    await robot.deployed();
+    console.log("robot address:", robot.address);
+
+    const RobocupCompetitionPlatform = await ethers.getContractFactory("RobocupCompetitionPlatform");
+    const robocup = await RobocupCompetitionPlatform.deploy(robot.address, program.address);
+    await robocup.deployed();
+    console.log("RobocupCompetitionPlatform address:", robocup.address);
+  
+
+    await program.setDevContractAddr(developer.address);
+    await program.setSupportAbility("AISoccer", true);
+    await program.setAbilityInitNumber("AISoccer", 1);
   });
 
   // You can nest describe calls to create subsections.
