@@ -189,7 +189,7 @@ contract Loot {
     constructor() {
     }
 
-    function random(string memory input) internal pure returns (uint256) {
+    function random(string memory input) public pure returns (uint256) {
         return uint256(keccak256(abi.encodePacked(input)));
     }
     
@@ -225,7 +225,7 @@ contract Loot {
         return pluck(tokenId, "RING", rings);
     }
     
-    function pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) internal view returns (string memory) {
+    function pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) public view returns (string memory) {
         uint256 rand = random(string(abi.encodePacked(keyPrefix, tokenId.toString())));
         string memory output = sourceArray[rand % sourceArray.length];
         uint256 greatness = rand % 21;

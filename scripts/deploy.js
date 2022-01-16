@@ -30,9 +30,13 @@ async function main() {
     await developer.deployed();
     console.log("Developer address:", developer.address);
 
+    const Loot = await ethers.getContractFactory("Loot");
+    const loot = await Loot.deploy();
+    await loot.deployed();
+    console.log("Loot address:", loot.address);
 
     const Robot = await ethers.getContractFactory("Robot");
-    const robot = await Robot.deploy(program.address);
+    const robot = await Robot.deploy(program.address, loot.address);
     await robot.deployed();
     console.log("robot address:", robot.address);
 

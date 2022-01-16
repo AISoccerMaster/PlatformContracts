@@ -629,8 +629,8 @@
       ]
     },
     "/Users/mryu/blockchain/AISoccerMaster/PlatformContracts/contracts/Robot.sol": {
-      "lastModificationDate": 1642260804041,
-      "contentHash": "2729d5cb426a743fc736cff591209af3",
+      "lastModificationDate": 1642292218406,
+      "contentHash": "185dff5cba564a08db437773152ede62",
       "sourceName": "contracts/Robot.sol",
       "solcConfig": {
         "version": "0.8.10",
@@ -665,6 +665,7 @@
         "0.8.10"
       ],
       "artifacts": [
+        "ILoot",
         "IRobocupCompetitionPlatform",
         "Robot"
       ]
@@ -742,8 +743,8 @@
       ]
     },
     "/Users/mryu/blockchain/AISoccerMaster/PlatformContracts/contracts/Loot.sol": {
-      "lastModificationDate": 1642212995739,
-      "contentHash": "7a60c978c34dc1f755be7ff82baf2ebc",
+      "lastModificationDate": 1642292165982,
+      "contentHash": "c814ab07e608c9f2939b555f4f71b48c",
       "sourceName": "contracts/Loot.sol",
       "solcConfig": {
         "version": "0.8.10",

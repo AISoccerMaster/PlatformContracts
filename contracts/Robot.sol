@@ -11,7 +11,29 @@ interface IRobocupCompetitionPlatform {
     function removeExpectRobotWithProgram(uint256 _robotId, uint256 _programId) external;
 }
 
-contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
+interface ILoot {
+    function random(string memory input) external pure returns (uint256);
+    
+    function getWeapon(uint256 tokenId) external view returns (string memory);
+    
+    function getChest(uint256 tokenId) external view returns (string memory);
+    
+    function getHead(uint256 tokenId) external view returns (string memory);
+    
+    function getWaist(uint256 tokenId) external view returns (string memory);
+
+    function getFoot(uint256 tokenId) external view returns (string memory);
+    
+    function getHand(uint256 tokenId) external view returns (string memory);
+    
+    function getNeck(uint256 tokenId) external view returns (string memory);
+    
+    function getRing(uint256 tokenId) external view returns (string memory);
+
+    function pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) external view returns (string memory);
+}
+
+contract Robot is ERC721Enumerable, IERC1155Receiver, Ownable {
     using SafeMath for uint256;
     using Strings for uint256;
     using EnumerableSet for EnumerableSet.UintSet;
@@ -28,6 +50,7 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
     mapping(uint256 => EnumerableSet.UintSet) private program2RobotsMap;
 
     IRobocupCompetitionPlatform public robocup;
+    ILoot public loot;
 
     string[] private roles = [
         "Male",
@@ -37,9 +60,10 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
     event Minted(uint256[] indexed tokenIds, uint256 amount, uint256 indexed pricePaid, uint256 indexed reserveAfterMint);
     event Burned(uint256[] indexed tokenIds, uint256 amount, uint256 indexed priceReceived, uint256 indexed reserveAfterBurn);
 
-    constructor(address _programContract) ERC721("Robot", "BOT") Ownable() {
+    constructor(address _programContract, address _loot) ERC721("Robot", "BOT") Ownable() {
         creator = payable(msg.sender);
         programContract = IERC1155(_programContract);
+        loot = ILoot(_loot);
     }
 
     function setCreator(address payable _creator) public onlyOwner {
@@ -52,42 +76,42 @@ contract Robot is Loot, ERC721Enumerable, IERC1155Receiver, Ownable {
 
         
     function getRole(uint256 tokenId) public view returns (string memory) {
-        return pluck(tokenId, "ROLE", roles);
+        return loot.pluck(tokenId, "ROLE", roles);
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         string[19] memory parts;
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
 
-        parts[1] = getWeapon(tokenId);
+        parts[1] = loot.getWeapon(tokenId);
 
         parts[2] = '</text><text x="10" y="40" class="base">';
 
-        parts[3] = getChest(tokenId);
+        parts[3] = loot.getChest(tokenId);
 
         parts[4] = '</text><text x="10" y="60" class="base">';
 
-        parts[5] = getHead(tokenId);
+        parts[5] = loot.getHead(tokenId);
 
         parts[6] = '</text><text x="10" y="80" class="base">';
 
-        parts[7] = getWaist(tokenId);
+        parts[7] = loot.getWaist(tokenId);
 
         parts[8] = '</text><text x="10" y="100" class="base">';
 
-        parts[9] = getFoot(tokenId);
+        parts[9] = loot.getFoot(tokenId);
 
         parts[10] = '</text><text x="10" y="120" class="base">';
 
-        parts[11] = getHand(tokenId);
+        parts[11] = loot.getHand(tokenId);
 
         parts[12] = '</text><text x="10" y="140" class="base">';
 
-        parts[13] = getNeck(tokenId);
+        parts[13] = loot.getNeck(tokenId);
 
         parts[14] = '</text><text x="10" y="160" class="base">';
 
-        parts[15] = getRing(tokenId);
+        parts[15] = loot.getRing(tokenId);
 
         parts[16] = '</text><text x="10" y="180" class="base">';
 
