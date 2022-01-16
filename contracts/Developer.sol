@@ -44,7 +44,7 @@ contract Developer is Ownable {
         _bAdded ? permittedDevs.add(_devAddr) : permittedDevs.remove(_devAddr);
     }
 
-    function isDevPermitted(address _devAddr) external returns(bool) {
+    function isDevPermitted(address _devAddr) view external returns(bool) {
         return permittedDevs.contains(_devAddr);
     }
     
@@ -59,7 +59,7 @@ contract Developer is Ownable {
         emit RegisterDev(msg.sender, _name, _githubUrl);
     }
 
-    function getAllDevInfo() external returns(DevInfo[] memory devInfos) {
+    function getAllDevInfo() view external returns(DevInfo[] memory devInfos) {
         uint256 length = registeredDevs.length();
         devInfos = new DevInfo[](length);
         for (uint256 i = 0; i < length; i++) {
@@ -82,7 +82,7 @@ contract Developer is Ownable {
         return programTokenId;
     }
 
-    function getProgramNumber(address _dev) external returns(uint256) {
+    function getProgramNumber(address _dev) view external returns(uint256) {
         return addrProgramTokenIdsMap[_dev].length;
     }
 }

@@ -238,6 +238,30 @@ contract Robot is ERC721Enumerable, IERC1155Receiver, Ownable {
         return robot2BoundProgramsMap[_robotId].contains(_programId);
     }
 
+    function getProgramsBound2Robot(uint256 _robotId) view external returns(uint256[] memory programIds) {
+        uint256 length = robot2BoundProgramsMap[_robotId].length();
+        programIds = new uint256[](length);
+        for (uint256 i = 0; i < length; i++) {
+            programIds[i] = robot2BoundProgramsMap[_robotId].at(i);
+        }
+    }
+
+    function getRobotNumberBoundByProgram(uint256 _programId) view external returns(uint256) {
+        return program2RobotsMap[_programId].length();
+    }
+
+    function getRobotIdsBoundByProgram(uint256 _programId, uint256 _fromIndex, uint256 _toIndex) view external returns(uint256[] memory robotIds) {
+        uint256 length = program2RobotsMap[_programId].length();
+        if (_toIndex > length) _toIndex = length;
+        require(_fromIndex < _toIndex, "Robot: index out of range!");
+        
+        robotIds = new uint256[](_toIndex - _fromIndex);
+        uint256 count = 0;
+        for (uint256 i = _fromIndex; i < _toIndex; i++) {
+            robotIds[count++] = program2RobotsMap[_programId].at(i);
+        }
+    }
+
     function onERC1155Received(
         address operator,
         address from,

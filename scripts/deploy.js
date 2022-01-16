@@ -30,13 +30,14 @@ async function main() {
     await developer.deployed();
     console.log("Developer address:", developer.address);
 
-    const Loot = await ethers.getContractFactory("Loot");
-    const loot = await Loot.deploy();
-    await loot.deployed();
-    console.log("Loot address:", loot.address);
-
+    // const Loot = await ethers.getContractFactory("Loot");
+    // const loot = await Loot.deploy();
+    // await loot.deployed();
+    // console.log("Loot address:", loot.address);
+    
+    const lootAddr = "0x2c9079c7005022DD53cc283c9fE54290E8038aBC";
     const Robot = await ethers.getContractFactory("Robot");
-    const robot = await Robot.deploy(program.address, loot.address);
+    const robot = await Robot.deploy(program.address, lootAddr);
     await robot.deployed();
     console.log("robot address:", robot.address);
 
@@ -44,53 +45,6 @@ async function main() {
     const robocup = await RobocupCompetitionPlatform.deploy(robot.address, program.address);
     await robocup.deployed();
     console.log("RobocupCompetitionPlatform address:", robocup.address);
-  
-    console.log("start set program");
-    await program.setDevContractAddr(developer.address);
-    await program.setSupportAbility("AISoccer", true);
-    await program.setAbilityInitNumber("AISoccer", 1);
-
-    console.log("start set developer");
-    await developer.registerDev("Sam", "full stack engineer on blockchain industry", "0x0000000000000000000000000000000000000000", 0, "https://pbs.twimg.com/profile_images/1454759537429266436/BX-zxPAo_400x400.jpg", "https://github.com/syslink");
-    await developer.registerProgram("AISoccer", 1, 0, "0x12345678", "champion program", "https://github.com/AISoccerMaster");
-    await developer.registerProgram("AISoccer", 1, 1, "0x23456789", "champion program", "https://github.com/AISoccerMaster");
-
-    const programNum = await program.getUserTokenNumber(deployerAddr);
-    const programIds = await program.getUserTokenIds(deployerAddr, 0, 2);
-    console.log("programNum = ", programNum, programIds);
-    await robot.setRobocup(robocup.address);
-
-    var mintPrice = await robot.getCurrentPriceToMint(3);
-    console.log("mint 3 price", mintPrice.toString());
-    await robot.mint(3, mintPrice.toHexString(), {value: mintPrice.toHexString()});
-    
-    var burnPrice = await robot.getCurrentPriceToBurn(1);
-    console.log("burn 1 price", burnPrice.toString());
-    burnPrice = await robot.getCurrentPriceToBurn(2);
-    console.log("burn 2 price", burnPrice.toString());
-    burnPrice = await robot.getCurrentPriceToBurn(3);
-    console.log("burn 3 price", burnPrice.toString());
-
-    mintPrice = await robot.getCurrentPriceToMint(1);
-    console.log("mint 1 price", mintPrice.toString());
-    await robot.mint(1, mintPrice.toHexString(), {value: mintPrice.toHexString()});
-
-    console.log("start bind program with robot");
-    await program.setApprovalForAll(robot.address, true);
-    var robotId_1 = await robot.tokenOfOwnerByIndex(deployerAddr, 0);
-    await robot.bindProgram2Robot(programIds[0], robotId_1);
-
-    var robotId_2 = await robot.tokenOfOwnerByIndex(deployerAddr, 1);
-    await robot.bindProgram2Robot(programIds[1], robotId_2);
-    console.log("RobotId:", robotId_1, robotId_2);
-
-    console.log("start competition of robocup");
-    await robocup.setEmulatePlatform("0xF0d219afAfDc79b81344534c37Bc69Fc64091F85", true);
-    await robocup.addExpectRobotWithProgram(robotId_1, 1);
-    await robocup.addExpectRobotWithProgram(robotId_2, 2);
-    await robocup.launchChallenge(robotId_1, 1, robotId_2, 2, {value: ethers.utils.parseEther("0.01")});
-    var competitionInfo = await robocup.tokenId2CompetitionMap(1);
-    console.log(competitionInfo);
   }
   
   function saveFrontendFiles(program) {

@@ -183,44 +183,64 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
         }
     }
     
+    // Initiator Opponent
+    /*
+    Initiator[Winner]: Robot.Program ID = 38938738.1
+    Opponent: Robot.Program ID = 38938738.2
+
+    */
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         CompetitionInfo memory competitionInfo = tokenId2CompetitionMap[_tokenId];
         CompetitionStatus status = getCompetitionStatus(_tokenId);
-        string[9] memory parts;
+        uint256 winnerIndex = 0;
+        if (status == CompetitionStatus.End) {
+            if (competitionInfo.robotOneScore > competitionInfo.robotTwoScore) {
+                winnerIndex = 1;
+            } else if (competitionInfo.robotOneScore < competitionInfo.robotTwoScore) {
+                winnerIndex = 2;
+            } 
+        }
+        string[11] memory parts;
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
 
-        parts[1] = string(abi.encodePacked("Robot.Program#", competitionInfo.robotOneId.toString(), ".", competitionInfo.programOneId.toString(), 
-                                        "VS Robot.Program#", competitionInfo.robotTwoId.toString(), ".", competitionInfo.programTwoId.toString()));
+        parts[1] = string(abi.encodePacked(winnerIndex == 1 ? "Initiator[Winner]: Robot.Program ID = " : "Initiator: Robot.Program ID = ", 
+                                                            competitionInfo.robotOneId.toString(), ".", competitionInfo.programOneId.toString()));
 
         parts[2] = '</text><text x="10" y="40" class="base">';
+
+        parts[3] = string(abi.encodePacked(winnerIndex == 2 ? "Opponent[Winner]: Robot.Program ID = " : "Opponent: Robot.Program ID = ", 
+                                                            competitionInfo.robotTwoId.toString(), ".", competitionInfo.programTwoId.toString()));
+
+        parts[4] = '</text><text x="10" y="60" class="base">';
         
         if (status == CompetitionStatus.End) {
-            parts[3] = string(abi.encodePacked("Score(End):", competitionInfo.robotOneScore.toString(), " : ", competitionInfo.robotTwoScore.toString()));
+            parts[5] = string(abi.encodePacked("Score:", competitionInfo.robotOneScore.toString(), " : ", competitionInfo.robotTwoScore.toString()));
             
-            parts[4] = '</text><text x="10" y="60" class="base">';
+            parts[6] = '</text><text x="10" y="80" class="base">';
 
-            parts[5] = string(abi.encodePacked("TimeStamp:", competitionInfo.startTime.toString(), " - ", competitionInfo.endTime.toString()));
+            parts[7] = string(abi.encodePacked("TimeStamp:", competitionInfo.startTime.toString(), " ~ ", competitionInfo.endTime.toString()));
         } else if (status == CompetitionStatus.Running) {
-            parts[3] = string(abi.encodePacked("Running Now"));
+            parts[5] = string(abi.encodePacked("Running Now"));
             
-            parts[4] = '</text><text x="10" y="60" class="base">';
+            parts[6] = '</text><text x="10" y="80" class="base">';
 
-            parts[5] = string(abi.encodePacked("TimeStamp:", competitionInfo.startTime.toString(), " - "));
+            parts[7] = string(abi.encodePacked("TimeStamp:", competitionInfo.startTime.toString(), " ~ ?"));
         } else {
-            parts[3] = string(abi.encodePacked("Not Started"));
+            parts[5] = string(abi.encodePacked("Not Started"));
             
-            parts[4] = '</text><text x="10" y="60" class="base">';
+            parts[6] = '</text><text x="10" y="80" class="base">';
 
-            parts[5] = string(abi.encodePacked("TimeStamp: - "));
+            parts[7] = string(abi.encodePacked("TimeStamp: ? ~ ?"));
         }
 
-        parts[6] = '</text><text x="10" y="60" class="base">';
+        parts[8] = '</text><text x="10" y="100" class="base">';
 
-        parts[7] = string(abi.encodePacked("LogHash:", competitionInfo.logHash));
+        parts[9] = string(abi.encodePacked("LogHash:", competitionInfo.logHash));
 
-        parts[8] = '</text></svg>';
+        parts[10] = '</text></svg>';
 
-        string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8]));
+        string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]));
+        output = string(abi.encodePacked(output, parts[6], parts[7], parts[8], parts[9], parts[10]));
         
         string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Robocup Competition #', _tokenId.toString(), '", "description": "Robocup competition records the battle between robots.", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
         output = string(abi.encodePacked('data:application/json;base64,', json));

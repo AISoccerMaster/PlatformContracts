@@ -152,6 +152,7 @@ contract Program is ERC1155Supply, Ownable {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual override {
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
         for (uint256 i = 0; i < ids.length; i++) {
             if (from != address(0) && balanceOf(from, ids[i]) == 0) {
                 userTokenIdsMap[from].remove(ids[i]);
