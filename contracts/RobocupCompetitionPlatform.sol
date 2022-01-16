@@ -214,17 +214,17 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
         parts[4] = '</text><text x="10" y="60" class="base">';
         
         if (status == CompetitionStatus.End) {
-            parts[5] = string(abi.encodePacked("Score:", competitionInfo.robotOneScore.toString(), " : ", competitionInfo.robotTwoScore.toString()));
+            parts[5] = string(abi.encodePacked("Score: ", competitionInfo.robotOneScore.toString(), " : ", competitionInfo.robotTwoScore.toString()));
             
             parts[6] = '</text><text x="10" y="80" class="base">';
 
-            parts[7] = string(abi.encodePacked("TimeStamp:", competitionInfo.startTime.toString(), " ~ ", competitionInfo.endTime.toString()));
+            parts[7] = string(abi.encodePacked("TimeStamp: ", competitionInfo.startTime.toString(), " ~ ", competitionInfo.endTime.toString()));
         } else if (status == CompetitionStatus.Running) {
             parts[5] = string(abi.encodePacked("Running Now"));
             
             parts[6] = '</text><text x="10" y="80" class="base">';
 
-            parts[7] = string(abi.encodePacked("TimeStamp:", competitionInfo.startTime.toString(), " ~ ?"));
+            parts[7] = string(abi.encodePacked("TimeStamp: ", competitionInfo.startTime.toString(), " ~ ?"));
         } else {
             parts[5] = string(abi.encodePacked("Not Started"));
             
@@ -235,7 +235,7 @@ contract RobocupCompetitionPlatform is ERC721Enumerable, Ownable {
 
         parts[8] = '</text><text x="10" y="100" class="base">';
 
-        parts[9] = string(abi.encodePacked("LogHash:", competitionInfo.logHash));
+        parts[9] = string(abi.encodePacked("LogHash: ", competitionInfo.logHash));
 
         parts[10] = '</text></svg>';
 

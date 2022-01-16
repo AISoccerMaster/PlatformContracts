@@ -90,27 +90,27 @@ contract Program is ERC1155Supply, Ownable {
         string[13] memory parts;
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
 
-        parts[1] = string(abi.encodePacked("Ability:", programInfo.ability));
+        parts[1] = string(abi.encodePacked("Ability: ", programInfo.ability));
 
         parts[2] = '</text><text x="10" y="40" class="base">';
 
-        parts[3] = string(abi.encodePacked("DevAddr:", uint256(uint160(programInfo.dev)).toHexString()));
+        parts[3] = string(abi.encodePacked("DevAddr: ", uint256(uint160(programInfo.dev)).toHexString()));
 
         parts[4] = '</text><text x="10" y="60" class="base">';
 
-        parts[5] = string(abi.encodePacked("Timestamp:", programInfo.uploadTime.toString()));
+        parts[5] = string(abi.encodePacked("Timestamp: ", programInfo.uploadTime.toString()));
 
         parts[6] = '</text><text x="10" y="80" class="base">';
 
-        parts[7] = string(abi.encodePacked("Version:", programInfo.mainVersion.toString(), ":", programInfo.subVersion.toString()));
+        parts[7] = string(abi.encodePacked("Version: ", programInfo.mainVersion.toString(), ":", programInfo.subVersion.toString()));
 
         parts[8] = '</text><text x="10" y="100" class="base">';
 
-        parts[9] = string(abi.encodePacked("Reposit:", programInfo.repositUrl));
+        parts[9] = string(abi.encodePacked("Reposit: ", programInfo.repositUrl));
 
         parts[10] = '</text><text x="10" y="120" class="base">';
 
-        parts[11] = string(abi.encodePacked("Description:", programInfo.desc));
+        parts[11] = string(abi.encodePacked("Description: ", programInfo.desc));
 
         parts[12] = '</text></svg>';
 
