@@ -102,7 +102,7 @@ contract Program is ERC1155Supply, Ownable {
 
         parts[6] = '</text><text x="10" y="80" class="base">';
 
-        parts[7] = string(abi.encodePacked("Version: ", programInfo.mainVersion.toString(), ":", programInfo.subVersion.toString()));
+        parts[7] = string(abi.encodePacked("Version: ", programInfo.mainVersion.toString(), ".", programInfo.subVersion.toString()));
 
         parts[8] = '</text><text x="10" y="100" class="base">';
 

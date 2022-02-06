@@ -228,7 +228,7 @@ contract Loot {
     function pluck(uint256 tokenId, string memory keyPrefix, string[] memory sourceArray) public view returns (string memory) {
         uint256 rand = random(string(abi.encodePacked(keyPrefix, tokenId.toString())));
         string memory output = sourceArray[rand % sourceArray.length];
-        uint256 greatness = rand % 21;
+        uint256 greatness = rand % 21 + _getWeight(tokenId);
         if (greatness > 14) {
             output = string(abi.encodePacked(output, " ", suffixes[rand % suffixes.length]));
         }
@@ -243,5 +243,11 @@ contract Loot {
             }
         }
         return output;        
+    }
+
+    function _getWeight(
+        uint256 tokenId
+    ) internal virtual returns(uint256) {
+        return 0;
     }
 }

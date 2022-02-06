@@ -37,6 +37,7 @@ contract Robot is ERC721Enumerable, IERC1155Receiver, Ownable {
     using SafeMath for uint256;
     using Strings for uint256;
     using EnumerableSet for EnumerableSet.UintSet;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     // this is currently 1%
     uint256 public initMintPrice = 0.005 ether; // at 0
@@ -46,8 +47,10 @@ contract Robot is ERC721Enumerable, IERC1155Receiver, Ownable {
     uint256 public reserve = 0;
 
     IERC1155 public programContract;
+    mapping(uint256 => uint256) public robot2WeightMap;
     mapping(uint256 => EnumerableSet.UintSet) private robot2BoundProgramsMap;
     mapping(uint256 => EnumerableSet.UintSet) private program2RobotsMap;
+    EnumerableSet.AddressSet private mintableAddrSet;
 
     IRobocupCompetitionPlatform public robocup;
     ILoot public loot;
@@ -64,6 +67,22 @@ contract Robot is ERC721Enumerable, IERC1155Receiver, Ownable {
         creator = payable(msg.sender);
         programContract = IERC1155(_programContract);
         loot = ILoot(_loot);
+    }
+
+    function setMintableAddress(address _minter, bool _bAdded) external onlyOwner {
+        _bAdded ? mintableAddrSet.add(_minter) : mintableAddrSet.remove(_minter);
+    }
+
+    function isMintable(address _minter) public view returns(bool) {
+        return mintableAddrSet.contains(_minter);
+    }
+
+    function getAllMinters() external view returns(address[] memory minters) {
+        uint256 length = mintableAddrSet.length();
+        minters = new address[](length);
+        for (uint256 i = 0; i < length; i++) {
+            minters[i] = mintableAddrSet.at(i);
+        }
     }
 
     function setCreator(address payable _creator) public onlyOwner {
@@ -129,9 +148,14 @@ contract Robot is ERC721Enumerable, IERC1155Receiver, Ownable {
         return output;
     }
 
-    function mint(uint256 _amount, uint256 _maxPriceFirstRobot) payable external returns (uint256[] memory _tokenIds)  {
-        require(msg.sender == tx.origin, "Robot: only EOA");
-        require(_amount > 0, "Robot: _amount must be larger than zero.");
+    function _getWeight(uint256 tokenId) internal virtual returns(uint256) {
+        uint256 originWeight = robot2WeightMap[tokenId];
+        return originWeight;
+    }
+
+    function mint(uint256 _amount, uint256 _maxPriceFirstRobot, uint256[] memory _weight) payable external returns (uint256[] memory _tokenIds)  {
+        require(mintableAddrSet.contains(msg.sender), "Robot: only mintable address");
+        require(_amount > 0, "Robot: _amount must be larger than zero.");        
 
         uint256 firstPrice = getCurrentPriceToMint(1); 
         require(firstPrice <= _maxPriceFirstRobot, "Robot: Price does NOT match your expected.");
@@ -145,6 +169,7 @@ contract Robot is ERC721Enumerable, IERC1155Receiver, Ownable {
             _tokenIds[i] = uint256(uint32(uint256(hashed)));
 
             _mint(msg.sender, _tokenIds[i]);
+            robot2WeightMap[_tokenIds[i]] = _weight[i];
             totalEverMinted +=1; 
         }
 
